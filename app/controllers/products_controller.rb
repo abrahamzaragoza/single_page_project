@@ -1,21 +1,34 @@
 class ProductsController < ApplicationController
   def index
-    @products = products
+    @products = Product.all
+  end
+
+  def show
+    @product = Product.find(params[:id])
+  end
+
+  def new
+    @product = Product.new
+  end
+
+  def create
+    @product = Product.new(product_params)
+    @product.save
+  end
+
+  def edit
+    @product = Product.find(params[:id])
+  end
+
+  def update
+    @product = Product.find(params[:id])
+    @product.update(product_params)
+    redirect_to root_path
   end
 
   private
 
-  def products
-    [
-      { name: 'Name 1' , price: '99.99',
-      description: 'Lorem ipsum dolor sit amet,consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      },
-      { name: 'Name 2' , price: '57.99',
-      description: 'Lorem ipsum dolor sit amet,consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      },
-      { name: 'Name 3' , price: '38.99',
-      description: 'Lorem ipsum dolor sit amet,consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      }
-    ]
+  def product_params
+    params.require(:product).permit(:name, :price, :description, :image_url)
   end
 end
