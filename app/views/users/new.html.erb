@@ -6,7 +6,7 @@
 
       <div class="form-body-style px-5 pt-4">
         <%= form_with model: @user, local: true do |f| %>
-            <%= render 'shared/messages', object: @user %>
+        <%= render 'shared/errors', object: @user %>
 
         <div class="form-group row">
           <div class="col-md-2 col-form-label"><%= f.label :first_name %></div>
