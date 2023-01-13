@@ -7,7 +7,10 @@ class ProductsController < ApplicationController
     @products = Product.all
   end
 
-  def show; end
+  def show
+    @comment = @product.comments.build
+    @comments = @product.comments
+  end
 
   def new
     @product = Product.new
