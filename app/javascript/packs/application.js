@@ -12,15 +12,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../../stylesheets/custom.css";
 
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import App from "../containers/App";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+document.addEventListener("DOMContentLoaded", () => {
+  const root = document.getElementById("root");
+  ReactDOM.render(<App />, root);
+});
 
 Rails.start();
 Turbolinks.start();
