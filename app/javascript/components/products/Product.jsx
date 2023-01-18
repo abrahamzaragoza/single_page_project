@@ -7,7 +7,7 @@ const Product = ({ product }) => {
       <div className="card">
         <img
           className="card-img-top img-fluid"
-          src="http://placehold.it/140x100"
+          src="https://via.placeholder.com/140x100"
           alt="Card image cap"
         />
         <div className="card-body">
@@ -25,7 +25,7 @@ const Product = ({ product }) => {
   );
 };
 
-Product.PropTypes = {
+Product.propTypes = {
   product: PropTypes.object.isRequired
 }
 
