@@ -1,22 +1,18 @@
-import React from "react";
+import React, { Component } from "react";
 import Product from "../components/products/Product";
 import axios from "axios";
 import Jumbotron from "../components/products/Jumbotron";
 
-class ProductList extends React.Component {
-  constructor(props) {
-    super(props);
+class ProductList extends Component {
+  state = {
+    products: [],
+  };
 
-    this.state = {
-      products: [],
-    };
-  }
-
-  componentDidMount() {
+  componentDidMount = () => {
     this.loadProductsFromServer();
   }
 
-  loadProductsFromServer() {
+  loadProductsFromServer = () => {
     axios
       .get("/api/v1/products.json")
       .then((response) => {
@@ -38,7 +34,6 @@ class ProductList extends React.Component {
       <>
         <Jumbotron />
         <div className="container">
-
           <div className="row">
             <div className="col-md-12 mb-2">
               <div className="row">
