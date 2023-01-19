@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 class NewProductForm extends Component {
   state = {
@@ -11,6 +12,24 @@ class NewProductForm extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
+
+    const { name, description, price, quantity } = this.state;
+
+    const newProduct = {
+      name,
+      description,
+      price,
+      quantity,
+    };
+
+    this.props.onSubmit(newProduct);
+
+    this.setState({
+      name: "",
+      description: "",
+      price: "",
+      quantity: "",
+    });
   };
 
   handleChange = (event) => {
@@ -67,6 +86,23 @@ class NewProductForm extends Component {
                   </div>
 
                   <div className="form-group row">
+                    <label htmlFor="price" className="col-md-3 col-form-label">
+                      Quantity
+                    </label>
+                    <div className="col-md-9">
+                      <input
+                        type="number"
+                        name="quantity"
+                        value={this.state.quantity}
+                        onChange={this.handleChange}
+                        id="quantity"
+                        className="form-control"
+                        placeholder="Item quantity"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
                     <label
                       htmlFor="description"
                       className="col-md-3 col-form-label"
@@ -118,5 +154,9 @@ class NewProductForm extends Component {
     );
   }
 }
+
+NewProductForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
 export default NewProductForm;

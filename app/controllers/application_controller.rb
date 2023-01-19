@@ -1,4 +1,7 @@
 class ApplicationController < ActionController::Base
+  protect_from_forgery with: :null_session,
+    only: Proc.new { |c| c.request.format.json? }
+
   private
   def current_user
     @current_user ||= User.find_by(id: cookies.signed[:user_id])

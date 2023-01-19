@@ -20,7 +20,6 @@ class App extends Component {
               path="/products/:id/*"
               element={<ProductDetailContainer />}
             />
-            <Route exact path="/newProduct" element={<NewProductForm />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
