@@ -28,7 +28,7 @@ class NewProductForm extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
 
-    const { name, description, price, quantity } = this.state;
+    const fieldNames = ["name", "description", "price", "quantity"];
 
     this.verifyAndSetFieldErrors(fieldNames)
 
