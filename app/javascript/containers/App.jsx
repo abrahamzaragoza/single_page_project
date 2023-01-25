@@ -8,6 +8,7 @@ import Footer from "../components/shared/Footer";
 import ProductList from "./ProductsContainer";
 import ProductDetailContainer from "../components/ProductDetailContainer";
 import Signup from "./SignupFormContainer";
+import Signin from "./SigninFormContainer";
 
 class App extends Component {
   state = {
@@ -34,7 +35,7 @@ class App extends Component {
     this.setState({ currentUser });
   };
 
-  handleSignout = (event) => {
+  handleSignout = (event, location, navigate) => {
     event.preventDefault();
     axios
       .delete("/api/v1/signout.json")
@@ -42,6 +43,9 @@ class App extends Component {
         this.setState({
           currentUser: null,
         });
+        if (location.pathname !== "/") {
+          navigate("/");
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -67,6 +71,15 @@ class App extends Component {
               path="/register"
               element={
                 <Signup
+                  onFetchCurrentUser={this.fetchCurrentUser}
+                  currentUser={this.state.currentUser}
+                />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <Signin
                   onFetchCurrentUser={this.fetchCurrentUser}
                   currentUser={this.state.currentUser}
                 />
