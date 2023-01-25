@@ -17,16 +17,6 @@ class ProductList extends React.Component {
     this.loadProductsFromServer();
   };
 
-  shouldComponentUpdate = (nextProps, nextState) => {
-    if (
-      this.state.serverErrors.length > 0 &&
-      this.state.serverErrors.length !== nextState.serverErrors.length
-    ) {
-      return false;
-    }
-    return true;
-  };
-
   loadProductsFromServer = () => {
     axios
       .get("/api/v1/products.json")
@@ -39,25 +29,23 @@ class ProductList extends React.Component {
 
   handleProductSubmit = (data) => {
     const newProduct = {
-      product: { ...data },
+      product: {
+        ...data,
+      },
     };
 
     axios
       .post("/api/v1/products.json", newProduct)
       .then((response) => {
         const newProducts = [...this.state.products, response.data.product];
-        this.setState({
-          products: newProducts,
-          serverErrors: [],
-          saved: true,
-        });
+        this.setState({ products: newProducts, serverErrors: [], saved: true });
       })
       .catch((error) => {
-        const msgs = error.response.data;
+        const msjs = [...error.response.data];
         let currentErrors = [...this.state.serverErrors];
-        msgs.forEach((msg) => {
-          if (!currentErrors.includes(msg)) {
-            currentErrors = [...currentErrors, msg];
+        msjs.forEach((msj) => {
+          if (!currentErrors.includes(msj)) {
+            currentErrors = [...currentErrors, msj];
           }
         });
         this.setState({ serverErrors: currentErrors });
@@ -66,7 +54,7 @@ class ProductList extends React.Component {
 
   handleButtonClick = () => {
     this.setState({
-      isFormVisible: !this.state.isFormVisible,
+      isFormVisible: !this.isFormVisible,
     });
   };
 
@@ -91,9 +79,11 @@ class ProductList extends React.Component {
           <div className="row">
             <div className="col-md-12 mb-2">
               <button
-              onClick={this.handleButtonClick}
-              className="btn btn-outline-purple btn-sm"
-              >+ New Product</button>
+                className="btn btn-outline-purple btn-sm"
+                onClick={this.handleButtonClick}
+              >
+                + New Product
+              </button>
             </div>
           </div>
         </div>

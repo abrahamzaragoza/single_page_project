@@ -181,7 +181,7 @@ class Signin extends Component {
 }
 
 Signin.propTypes = {
-  onFetchCurrentUser: PropTypes.func.isrequired,
+  onFetchCurrentUser: PropTypes.func.isRequired,
   currentUser: PropTypes.object,
 };
 

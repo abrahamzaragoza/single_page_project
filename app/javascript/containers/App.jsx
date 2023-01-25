@@ -65,7 +65,9 @@ class App extends Component {
             <Route
               exact
               path="/products/:id/*"
-              element={<ProductDetailContainer />}
+              element={
+                <ProductDetailContainer currentUser={this.state.currentUser} />
+              }
             />
             <Route
               path="/register"
