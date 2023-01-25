@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
-import PropTypes from "prop-types";
 import axios from "axios";
-
+import PropTypes from "prop-types";
 import EditProductForm from "../containers/EditProductFormContainer";
+import CommentList from "../components/comments/CommentList";
 
 class ProductDetailContainer extends Component {
   constructor(props) {
@@ -13,18 +13,11 @@ class ProductDetailContainer extends Component {
       product: {},
       edited: false,
       updated: false,
+      comments: [],
+      saved: false,
+      serverErrors: [],
     };
   }
-
-  componentDidMount() {
-    this.getProduct();
-  }
-
-  componentDidUpdate = () => {
-    if (this.state.edited && this.state.updated) {
-      this.getProduct();
-    }
-  };
 
   handleDelete = (event) => {
     event.preventDefault();
@@ -42,19 +35,39 @@ class ProductDetailContainer extends Component {
       });
   };
 
-  getProduct = () => {
+  componentDidMount() {
+    this.getProductAndComment();
+  }
+
+  componentDidUpdate = () => {
+    if (this.state.edited && this.state.updated) {
+      this.getProductAndComment();
+    }
+  };
+
+  getProductAndComment = () => {
     const id = this.props.params && this.props.params.id;
 
-    axios
-      .get(`/api/v1/products/${id}.json`)
-      .then((response) => {
-        this.setState({ product: response.data.product });
-      })
-      .catch((error) => {
-        this.props.navigate("/", {
-          state: { error: error.response.data.errors },
+    if (id) {
+      axios
+        .all([
+          axios.get(`/api/v1/products/${id}.json`),
+          axios.get(`/api/v1/products/${id}/comments.json`),
+        ])
+        .then(
+          axios.spread((productResponse, commentsResponse) => {
+            this.setState({
+              product: productResponse.data.product,
+              comments: commentsResponse.data.comments,
+            });
+          })
+        )
+        .catch((error) => {
+          this.props.navigate("/", {
+            state: { error: error.response.data.errors },
+          });
         });
-      });
+    }
   };
 
   setUpdated = (value) => {
@@ -76,9 +89,30 @@ class ProductDetailContainer extends Component {
     return false;
   };
 
+  resetSaved = () => {
+    this.setState({
+      saved: false,
+      serverErrors: [],
+    });
+  };
+
+  handleCommentSubmit = (data) => {
+    const id = +this.props.params.id;
+    axios
+      .post(`/api/v1/products/${id}/comments.json`, data)
+      .then((response) => {
+        const comments = [response.data.comment, ...this.state.comments];
+        this.setState({ comments });
+      })
+      .catch((error) => {
+        this.setState({ serverErrors: error.response.data });
+      });
+  };
+
   render() {
     const id = this.props.params.id;
     const { product } = this.state;
+    const { currentUser } = this.props;
 
     return (
       <div className="container">
@@ -144,6 +178,18 @@ class ProductDetailContainer extends Component {
             </Routes>
           ) : null}
         </div>
+
+        <hr />
+        {!this.state.edited && (
+          <CommentList
+            comments={this.state.comments}
+            onCommentSubmit={this.handleCommentSubmit}
+            serverErrors={this.state.serverErrors}
+            saved={this.state.saved}
+            onresetSaved={this.resetSaved}
+            currentUser={currentUser}
+          />
+        )}
       </div>
     );
   }
