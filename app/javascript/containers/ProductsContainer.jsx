@@ -1,6 +1,8 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 
+import ErrorMessages from "../components/shared/ErrorMessages";
 import Product from "../components/products/Product";
 import Jumbotron from "../components/products/Jumbotron";
 import NewProductForm from "../components/products/NewProductForm";
@@ -15,6 +17,13 @@ class ProductList extends React.Component {
 
   componentDidMount = () => {
     this.loadProductsFromServer();
+  };
+
+  componentDidUpdate = () => {
+    if (!this.state.flash && this.props.location.state) {
+      const flashMsg = this.props.location.state.error;
+      this.setState({ flash: flashMsg });
+    }
   };
 
   loadProductsFromServer = () => {
@@ -74,6 +83,15 @@ class ProductList extends React.Component {
     return (
       <>
         <Jumbotron />
+        {this.state.flash && (
+          <div className="row">
+            <ErrorMessages
+              errors={[this.state.flash]}
+              flash={true}
+              colWidth="col-md-12 offset-md-1"
+            />
+          </div>
+        )}
 
         <div className="container">
           <div className="row">
@@ -111,4 +129,7 @@ class ProductList extends React.Component {
   }
 }
 
-export default ProductList;
+export default () => {
+  const location = useLocation();
+  return <ProductList location={location} />;
+};

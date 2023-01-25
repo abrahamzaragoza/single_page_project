@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, Route, Routes, useParams } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from "axios";
 
@@ -26,6 +26,22 @@ class ProductDetailContainer extends Component {
     }
   };
 
+  handleDelete = (event) => {
+    event.preventDefault();
+    this.handleProductDelete(this.props.params.id);
+  };
+
+  handleProductDelete = (id) => {
+    axios
+      .delete(`/api/v1/products/${id}.json`)
+      .then((response) => {
+        this.props.navigate("/");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   getProduct = () => {
     const id = this.props.params && this.props.params.id;
 
@@ -35,7 +51,9 @@ class ProductDetailContainer extends Component {
         this.setState({ product: response.data.product });
       })
       .catch((error) => {
-        console.log(error);
+        this.props.navigate("/", {
+          state: { error: error.response.data.errors },
+        });
       });
   };
 
@@ -60,7 +78,7 @@ class ProductDetailContainer extends Component {
 
   render() {
     const id = this.props.params.id;
-    const { product, currentUser } = this.state;
+    const { product } = this.state;
 
     return (
       <div className="container">
@@ -87,15 +105,17 @@ class ProductDetailContainer extends Component {
 
             <div className="mb-4">{product.description}</div>
 
-            {this.isOwner(this.props.currentUser, product) ? (
+            {this.isOwner(this.props.currentUser, product) &&
+            !this.state.edited ? (
               <>
                 <div className="float-right btn-edit-del">
-                  <Link
-                    to={`/products/${id}/edit`}
+                  <a
+                    href={`/products/${id}/edit`}
                     className="btn btn-outline-danger btn-lg"
+                    onClick={this.handleDelete}
                   >
                     Delete
-                  </Link>
+                  </a>
                 </div>
 
                 <div>
@@ -109,18 +129,20 @@ class ProductDetailContainer extends Component {
               </>
             ) : null}
           </div>
-          <Routes>
-            <Route
-              path="edit"
-              element={
-                <EditProductForm
-                  onEdit={this.editingProduct}
-                  {...this.props}
-                  onUpdate={this.setUpdated}
-                />
-              }
-            />
-          </Routes>
+          {this.isOwner(this.props.currentUser, product) ? (
+            <Routes>
+              <Route
+                path="edit"
+                element={
+                  <EditProductForm
+                    onEdit={this.editingProduct}
+                    {...this.props}
+                    onUpdate={this.setUpdated}
+                  />
+                }
+              />
+            </Routes>
+          ) : null}
         </div>
       </div>
     );
@@ -131,6 +153,13 @@ ProductDetailContainer.propTypes = {
   currentUser: PropTypes.object,
 };
 
-export default (props) => (
-  <ProductDetailContainer {...props} params={useParams()} />
-);
+export default (props) => {
+  let navigate = useNavigate();
+  return (
+    <ProductDetailContainer
+      {...props}
+      params={useParams()}
+      navigate={navigate}
+    />
+  );
+};
