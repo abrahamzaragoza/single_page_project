@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
-import ErrorMessages from "../components/shared/ErrorMessages";
+import ErrorMessagesHOC from "../components/shared/ErrorMessagesHOC";
 import Product from "../components/products/Product";
 import Jumbotron from "../components/products/Jumbotron";
 import NewProductForm from "../components/products/NewProductForm";
@@ -85,7 +85,7 @@ class ProductList extends React.Component {
         <Jumbotron />
         {this.state.flash && (
           <div className="row">
-            <ErrorMessages
+            <ErrorMessagesHOC
               errors={[this.state.flash]}
               flash={true}
               colWidth="col-md-12 offset-md-1"

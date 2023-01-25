@@ -5,20 +5,17 @@ import ErrorMessages from "../components/shared/ErrorMessages";
 import ProductForm from "../components/products/ProductForm";
 import { useNavigate, useParams } from "react-router-dom";
 import { verifyAndSetFieldErrors } from "../shared/helpers";
+import withProductForm from "../components/products/WithProductForm";
 
 class EditProductForm extends Component {
   state = {
-    name: "",
-    description: 0,
-    price: "",
-    quantity: "",
-    errors: {},
     serverErrors: [],
     saved: false,
   };
 
   componentDidMount = () => {
     const id = this.props.params && +this.props.params.id;
+
     if (id) {
       this.getProduct(id);
     }
@@ -34,44 +31,13 @@ class EditProductForm extends Component {
     }
   };
 
-  resetSaved = () => {
-    this.setState({
-      saved: false,
-      serverErrors: [],
-    });
-  };
-
-  handleChange = (event) => {
-    const { name, value } = event.target;
-    this.setState({
-      [name]: value,
-    });
-    this.clearErrors(name, value);
-  };
-
   handleSubmit = (event) => {
-    event.preventDefault();
-    const fieldNames = ["name", "description", "price", "quantity"];
-    verifyAndSetFieldErrors(this, fieldNames);
-
-    if (Object.keys(this.state.errors).length === 0) {
-      const editedProduct = {
-        id: this.state.id,
-        name: this.state.name,
-        description: this.state.description,
-        price: +this.state.price,
-        quantity: +this.state.quantity,
-      };
-
-      this.handleProductUpdate(editedProduct);
-    }
+    this.props.onSubmit(event, this.handleProductUpdate);
   };
 
   handleProductUpdate = (data) => {
     const updatedProduct = {
-      product: {
-        ...data,
-      },
+      product: { ...data },
     };
 
     axios
@@ -80,11 +46,11 @@ class EditProductForm extends Component {
         const { product } = response.data;
         this.setState(
           {
-            ...product,
             serverErrors: [],
             saved: true,
           },
           () => {
+            this.props.onSetFields(product);
             this.props.onUpdate(true);
             this.props.navigate(`/products/${data.id}`);
           }
@@ -96,79 +62,9 @@ class EditProductForm extends Component {
           ...error.response.data,
         ];
 
-        const errorSet = new Set(updatedErrors);
-        this.setState({ serverErrors: [...errorSet] });
+        const errorsSet = new Set(updatedErrors);
+        this.setState({ serverErrors: [...errorsSet] });
       });
-  };
-
-  handleBlur = (event) => {
-    const { name } = event.target;
-    const fieldError = this.checkErrors(this.state, name);
-    const errors = Object.assign({}, this.state.errors, fieldError);
-    this.setState({ errors });
-  };
-
-  clearErrors = (name, value) => {
-    let errors = { ...this.state.errors };
-
-    switch (name) {
-      case "name":
-        if (value.length > 0) {
-          delete errors["name"];
-        }
-        break;
-      case "description":
-        if (value.length > 0) {
-          delete errors["description"];
-        }
-        break;
-      case "price":
-        if (parseFloat(value) > 0.0 || value.match(/^\d{1,}(\.\d{0,2})?$/)) {
-          delete errors["price"];
-        }
-        break;
-      case "quantity":
-        if (parseInt(value, 10) > 0 || value.match(/^\d{1,}$/)) {
-          delete errors["quantity"];
-        }
-        break;
-    }
-    this.setState({ errors });
-  };
-
-  checkErrors = (state, fieldName) => {
-    const error = {};
-
-    switch (fieldName) {
-      case "name":
-        if (!state.name) {
-          error.name = "Please provide a name";
-        }
-        break;
-      case "description":
-        if (!state.description) {
-          error.description = "Please provide a description";
-        }
-        break;
-      case "price":
-        if (
-          parseFloat(state.price) <= 0.0 ||
-          !state.price.toString().match(/^\d{1,}(\.\d{0,2})?$/)
-        ) {
-          error.price = "Price has to be a positive number";
-        }
-        break;
-      case "quantity":
-        if (
-          parseInt(state.quantity, 10) <= 0 ||
-          !state.quantity.toString().match(/^\d{1,}$/)
-        ) {
-          error.quantity = "Quantity has to be a positive number";
-        }
-        break;
-    }
-
-    return error;
   };
 
   getProduct = (id) => {
@@ -179,22 +75,18 @@ class EditProductForm extends Component {
         const idx = product.price.search(/\d/);
         product.price = product.price.slice(idx);
 
-        this.setState(
-          {
-            id: product.id,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            quantity: product.quantity,
-          },
-          () => {
-            this.props.onEdit();
-          }
-        );
+        this.props.onSetFields(product, () => {
+          this.props.onEdit();
+        });
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((error) => console.log(error));
+  };
+
+  resetSaved = () => {
+    this.setState({
+      saved: false,
+      serverErrors: [],
+    });
   };
 
   render() {
